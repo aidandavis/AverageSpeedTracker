@@ -16,9 +16,6 @@ abstract class SpeedTracker(context: Context, private val isTrackingStatus: Bool
     var speedMPS = 0.0 // m/s
     val speedKMH: Double
         get() = speedMPS * 3.6
-    val speedMPH: Double
-        get() = speedMPS * 2.2
-    var speedTime: SpeedTimePair = SpeedTimePair(0.0, 0)
 
     @SuppressLint("MissingPermission")
     fun startTracking() {
@@ -70,7 +67,6 @@ abstract class SpeedTracker(context: Context, private val isTrackingStatus: Bool
             if (locationBuffer.size <= BUFFER_SIZE) return
             val buffer = locationBuffer.subList(locationBuffer.lastIndex - BUFFER_SIZE, locationBuffer.lastIndex)
             speedMPS = calculateSpeed(buffer)
-            speedTime = SpeedTimePair(speedKMH, (locationBuffer.last().time/1000))
             onSpeedChanged()
         }
     }
