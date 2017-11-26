@@ -11,6 +11,9 @@ import android.widget.Button
 import android.widget.TextView
 
 //todo: persistence when activity closed (background service?)
+//todo: graph
+//todo: permission return
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,8 +55,10 @@ class MainActivity : AppCompatActivity() {
                 currentSpeed = speedKMH
                 updateTimes()
                 addSpeedTimePair()
-                calculateCurrentAverageSpeed()
-                calculateAboveBelow()
+                if (speedTimeList.size > 3) {
+                    calculateCurrentAverageSpeed()
+                    calculateAboveBelow()
+                }
                 updateDisplayFields()
                 // add point to graph
             }
@@ -91,11 +96,10 @@ class MainActivity : AppCompatActivity() {
     private fun calculateCurrentAverageSpeed() {
         val prevTotalTime = timeOfLastPoint - timeOfFirstPoint // Long
         val newTotalTime = timeOfNewPoint - timeOfFirstPoint // Long
-        if (prevTotalTime == 0L || newTotalTime == 0L) {
+        if (newTotalTime == 0L) { // prevent singularity
             currentAverage = 0.0
             return
         }
-
         val oldTotalSpeed = (currentAverage * prevTotalTime) // Double
         val newTotalSpeed = (oldTotalSpeed + currentSpeed) // Double
         currentAverage = (newTotalSpeed / newTotalTime) // Double
@@ -106,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun calculateAboveBelow() {
-        aboveBelow += (setAverageSpeed-currentSpeed).toLong()*((timeOfNewPoint-timeOfLastPoint)/1000)
+        aboveBelow += ((setAverageSpeed-currentSpeed).toLong()*((timeOfNewPoint-timeOfLastPoint)/1000))
     }
 
     private fun updateTimes() {
