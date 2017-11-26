@@ -10,6 +10,11 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 
 //todo: persistence when activity closed (background service?)
 //todo: graph
@@ -35,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var displayCurrentAverage: TextView
     private lateinit var displayAboveBelow: TextView
     private lateinit var setButton: Button
+    private lateinit var graph: LineChart
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +68,7 @@ class MainActivity : AppCompatActivity() {
                     calculateAboveBelow()
                 }
                 updateDisplayFields()
+                updateGraph()
                 // add point to graph
             }
         }
@@ -77,6 +84,21 @@ class MainActivity : AppCompatActivity() {
             resetValues()
             updateDisplayFields()
         })
+
+        graph = findViewById(R.id.lineChart)
+    }
+
+    private fun updateGraph() {
+        val entries: ArrayList<Entry> = ArrayList()
+        speedTimeList.mapTo(entries) { Entry(it.time.toFloat(), it.speed.toFloat()) }
+
+        val dataSet = LineDataSet(entries, "speed")
+        dataSet.color = R.color.colorPrimaryDark
+        val lineData = LineData(dataSet)
+
+        graph.data = lineData
+        graph.invalidate()
+
     }
 
     private fun gpsFixToast() {
@@ -90,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         timeOfNewPoint = 0L
         aboveBelow = 0L
         speedTimeList.clear()
+        graph.clear()
     }
 
     private fun updateDisplayFields() {

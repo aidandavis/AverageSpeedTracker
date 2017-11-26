@@ -1,8 +1,7 @@
 package com.aidandavisdev.aidandavis.averagespeedtracker
 
 /**
- * Created by aidan on 25/11/2017.
+ * Created by aidan on 26/11/2017.
  */
 
-/* idea is that it is kmh and seconds, but no restrictions */
-class SpeedTimePair(speed: Double, time: Long)
+class SpeedTimePair(var speed: Double, var time: Long)
