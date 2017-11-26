@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Average Speed Tracker</string>
+    <string name="text_speed">Speed:</string>
+    <string name="_0_0">0.0</string>
+    <string name="text_set_average">Set Avg:</string>
+    <string name="text_current_average">Current Avg:</string>
+    <string name="text_above_below">Above/Below:</string>
+    <string name="speed_text_format">%.2f</string>
 </resources>

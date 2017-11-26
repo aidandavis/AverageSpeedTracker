@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.TextView
 
 //todo: persistence when activity closed (background service?)
 
@@ -15,13 +17,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var speedTracker: SpeedTracker
 
     // set average speed
-    private var currentAverageSpeed: Double = 0.0
-    // point history (for graphing), List<SpeedTimePair> speed, seconds since time of first point
-    // above/below (prevTotal + ((setAverageSpeed-currentSpeed)*seconds since last point))
+    private var currentAverage: Double = 0.0
+    private var setAverageSpeed: Double = 0.0
+    private var speedTimeList: ArrayList<SpeedTimePair> =  ArrayList() // point history (for graphing), List<SpeedTimePair> speed, seconds since time of first point
+    private var aboveBelow: Long = 0L
     private var timeOfFirstPoint: Long = 0
     private var timeOfLastPoint: Long = 0
     private var timeOfNewPoint: Long = 0
     private var currentSpeed: Double = 0.0
+
+    private lateinit var displayCurrentSpeed: TextView
+    private lateinit var displaySetAverage: TextView
+    private lateinit var displayCurrentAverage: TextView
+    private lateinit var displayAboveBelow: TextView
+    private lateinit var setButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,13 +51,52 @@ class MainActivity : AppCompatActivity() {
             override fun onSpeedChanged() {
                 currentSpeed = speedKMH
                 updateTimes()
-                currentAverageSpeed = ((currentAverageSpeed * (timeOfLastPoint - timeOfFirstPoint)) + currentSpeed) / (timeOfNewPoint - timeOfFirstPoint)
-
-                // do above/below
+                addSpeedTimePair()
+                calculateCurrentAverageSpeed()
+                calculateAboveBelow()
+                updateDisplayFields()
                 // add point to graph
-                // update display fields
             }
         }
+
+        displayCurrentSpeed = findViewById(R.id.display_current_speed)
+        displaySetAverage = findViewById(R.id.display_set_average)
+        displayCurrentAverage = findViewById(R.id.display_current_average)
+        displayAboveBelow = findViewById(R.id.display_above_below)
+
+        setButton = findViewById(R.id.button_set_average)
+        setButton.setOnClickListener({
+            setAverageSpeed = currentSpeed
+            resetValues()
+        })
+    }
+
+    private fun resetValues() {
+        currentAverage = 0.0
+        timeOfFirstPoint = 0L
+        timeOfLastPoint = 0L
+        timeOfNewPoint = 0L
+        aboveBelow = 0L
+        speedTimeList.clear()
+    }
+
+    private fun updateDisplayFields() {
+        displayCurrentSpeed.text = getString(R.string.speed_text_format).format(currentSpeed)
+        displaySetAverage.text = getString(R.string.speed_text_format).format(setAverageSpeed)
+        displayCurrentAverage.text = getString(R.string.speed_text_format).format(currentAverage)
+        displayAboveBelow.text = getString(R.string.speed_text_format).format(aboveBelow)
+    }
+
+    private fun calculateCurrentAverageSpeed() {
+        currentAverage = ((currentAverage * (timeOfLastPoint - timeOfFirstPoint)) + currentSpeed) / (timeOfNewPoint - timeOfFirstPoint)
+    }
+
+    private fun addSpeedTimePair() {
+        speedTimeList.add(SpeedTimePair(currentSpeed, (timeOfNewPoint-timeOfFirstPoint)/1000))
+    }
+
+    private fun calculateAboveBelow() {
+        aboveBelow += (setAverageSpeed-currentSpeed).toLong()*((timeOfNewPoint-timeOfLastPoint)/1000)
     }
 
     private fun updateTimes() {
