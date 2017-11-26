@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 
 //todo: persistence when activity closed (background service?)
 //todo: graph
@@ -22,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     // set average speed
     private var currentAverage: Double = 0.0
     private var setAverageSpeed: Double = 0.0
-    private var speedTimeList: ArrayList<SpeedTimePair> =  ArrayList() // point history (for graphing), List<SpeedTimePair> speed, seconds since time of first point
+    private var speedTimeList: ArrayList<SpeedTimePair> = ArrayList() // point history (for graphing), List<SpeedTimePair> speed, seconds since time of first point
     private var aboveBelow: Long = 0L
     private var timeOfFirstPoint: Long = 0
     private var timeOfLastPoint: Long = 0
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onGPSFix() {
+                gpsFixToast()
             }
 
             override fun onSpeedChanged() {
@@ -75,6 +77,10 @@ class MainActivity : AppCompatActivity() {
             resetValues()
             updateDisplayFields()
         })
+    }
+
+    private fun gpsFixToast() {
+        Toast.makeText(this, "GPS Fix", Toast.LENGTH_SHORT).show()
     }
 
     private fun resetValues() {
@@ -106,11 +112,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addSpeedTimePair() {
-        speedTimeList.add(SpeedTimePair(currentSpeed, (timeOfNewPoint-timeOfFirstPoint)/1000))
+        speedTimeList.add(SpeedTimePair(currentSpeed, (timeOfNewPoint - timeOfFirstPoint) / 1000))
     }
 
     private fun calculateAboveBelow() {
-        aboveBelow += ((setAverageSpeed-currentSpeed).toLong()*((timeOfNewPoint-timeOfLastPoint)/1000))
+        aboveBelow += ((setAverageSpeed - currentSpeed).toLong() * ((timeOfNewPoint - timeOfLastPoint) / 1000))
     }
 
     private fun updateTimes() {
@@ -123,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestPermission(): Boolean {
         val hasPermission = (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-        if (!hasPermission){
+        if (!hasPermission) {
             val fineRequestCode = 1
             val finePermission = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
             ActivityCompat.requestPermissions(this, finePermission, fineRequestCode)
