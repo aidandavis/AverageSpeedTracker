@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
         setButton.setOnClickListener({
             setAverageSpeed = currentSpeed
             resetValues()
+            updateDisplayFields()
         })
     }
 
@@ -84,11 +85,20 @@ class MainActivity : AppCompatActivity() {
         displayCurrentSpeed.text = getString(R.string.speed_text_format).format(currentSpeed)
         displaySetAverage.text = getString(R.string.speed_text_format).format(setAverageSpeed)
         displayCurrentAverage.text = getString(R.string.speed_text_format).format(currentAverage)
-        displayAboveBelow.text = getString(R.string.speed_text_format).format(aboveBelow)
+        displayAboveBelow.text = aboveBelow.toString()
     }
 
     private fun calculateCurrentAverageSpeed() {
-        currentAverage = ((currentAverage * (timeOfLastPoint - timeOfFirstPoint)) + currentSpeed) / (timeOfNewPoint - timeOfFirstPoint)
+        val prevTotalTime = timeOfLastPoint - timeOfFirstPoint // Long
+        val newTotalTime = timeOfNewPoint - timeOfFirstPoint // Long
+        if (prevTotalTime == 0L || newTotalTime == 0L) {
+            currentAverage = 0.0
+            return
+        }
+
+        val oldTotalSpeed = (currentAverage * prevTotalTime) // Double
+        val newTotalSpeed = (oldTotalSpeed + currentSpeed) // Double
+        currentAverage = (newTotalSpeed / newTotalTime) // Double
     }
 
     private fun addSpeedTimePair() {
